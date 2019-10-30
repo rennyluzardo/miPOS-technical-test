@@ -1,3 +1,5 @@
+const path = require('path')
+const resolve = path.resolve
 const withSass = require('@zeit/next-sass')
 const webpack = require('webpack')
 
@@ -10,9 +12,16 @@ module.exports = withSass({
       })
     )
 
+    config.module.rules.push({
+      test: /\.scss/,
+      loader: 'import-glob-loader'
+    })
+
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      routes: path.resolve(__dirname, 'routes.js')
+    }
+
     return config
-  },
-  publicRuntimeConfig: {
-    env: process.env.ENV
   }
 })
