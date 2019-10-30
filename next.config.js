@@ -1,5 +1,4 @@
 const path = require('path')
-const resolve = path.resolve
 const withSass = require('@zeit/next-sass')
 const webpack = require('webpack')
 
@@ -23,5 +22,8 @@ module.exports = withSass({
     }
 
     return config
+  },
+  publicRuntimeConfig: {
+    env: process.env.ENV
   }
 })
