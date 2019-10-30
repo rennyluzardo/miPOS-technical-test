@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@zeit/next-sass": "^1.0.1",
+    "antd": "^3.24.3",
     "jquery": "^3.4.1",
     "next": "^9.1.2",
     "next-redux-wrapper": "^4.0.1",
