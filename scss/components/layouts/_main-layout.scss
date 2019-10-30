@@ -25,8 +25,10 @@
         }
 
         &__content-box {
+            padding: 15px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
     
             &--content-left {
                 padding: 20px;
