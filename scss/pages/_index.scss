@@ -1,0 +1,11 @@
+.action-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+}
+
+.separator {
+  height: 100% !important;
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
