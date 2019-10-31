@@ -1,7 +1,10 @@
 // Core
-@import 
+@import
 "core/variables",
-"core/global";
+"core/global",
+"../node_modules/antd/dist/antd.css";
 
+// Pages
+@import "pages/**/*";
 // Components
-@import "components/**/*"
+@import "components/**/*";
