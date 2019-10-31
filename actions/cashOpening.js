@@ -1,6 +1,6 @@
 import CONSTANTS from '../config/constants'
 
-export const FETCH_CASH_OPENING_INFO = 'GET_CASH_OPENING_INFO'
+export const FETCH_CASH_OPENING_INFO = 'FETCH_CASH_OPENING_INFO'
 export const ADD_CASH_OPENING_INFO = 'ADD_CASH_OPENING_INFO'
 
 export const fetchCashOpeningInfo = () => dispatch => {
@@ -10,18 +10,26 @@ export const fetchCashOpeningInfo = () => dispatch => {
             Authorization: `Bearer ${CONSTANTS.ACCESS_TOKEN}`
         }
     })
-    .then(res => res.json())
-    .then(res => {
-        const mockRes = {
-            'status': 'Success',
-            'results': {
-                'date_open': '2019/06/11',
-                'hour_open': '12:45',
-                'value_previous_close': 6280,
-                'value_open': null,
-                'observation': ''
-            }
-        }
-        dispatch({ type: FETCH_CASH_OPENING_INFO, payload: mockRes })
+        .then(res => res.json())
+        .then(res => {
+            dispatch({ type: FETCH_CASH_OPENING_INFO, payload: res })
+            return res
+        })
+        .catch(err => console.log(err))
+}
+
+export const addCashOpening = data => dispatch => {
+    return fetch(`${CONSTANTS.API}cashier/balance/open/day`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${CONSTANTS.ACCESS_TOKEN}`,
+        },
+        body: JSON.stringify(data)
     })
+        .then(res => res.json())
+        .then(res => {
+            dispatch({ type: ADD_CASH_OPENING_INFO, payload: res })
+            return res
+        })
+        .catch(err => console.log(err))
 }
