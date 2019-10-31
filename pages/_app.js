@@ -10,7 +10,7 @@ class MyApp extends App {
         return (
             <Container>
                 <Provider store={store}>
-                    <Component />
+                    <Component/>
                 </Provider>
             </Container>
         )
