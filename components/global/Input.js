@@ -11,9 +11,14 @@ const InputText = props => (
                 ? <Input
                     placeholder={props.placeholder}
                     value={props.value}
+                    defaultValue={props.defaultValue}
                     onChange={props.onChangeInput}
-                    disabled={props.disabled} />
-                : <TextArea rows={4} onChange={props.onChangeInput} />
+                    disabled={props.disabled}/>
+                : <TextArea
+                    rows={4}
+                    value={props.value}
+                    onChange={props.onChangeInput}
+                    disabled={props.disabled}/>
         }
 
         {!!props.error && <p className="error-text">{props.error}</p>}
@@ -22,7 +27,7 @@ const InputText = props => (
 
 InputText.propTypes = {
     label: PropTypes.string,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
 }
 
 export default InputText
