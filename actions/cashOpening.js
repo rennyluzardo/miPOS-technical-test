@@ -22,13 +22,14 @@ export const addCashOpening = data => dispatch => {
     return fetch(`${CONSTANTS.API}cashier/balance/open/day`, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${CONSTANTS.ACCESS_TOKEN}`,
         },
         body: JSON.stringify(data)
     })
         .then(res => res.json())
         .then(res => {
-            dispatch({ type: ADD_CASH_OPENING_INFO, payload: res })
+            dispatch({ type: FETCH_CASH_OPENING_INFO, payload: res })
             return res
         })
         .catch(err => console.log(err))
