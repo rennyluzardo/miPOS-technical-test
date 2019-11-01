@@ -10,7 +10,7 @@ export default (state = initialState, action) => {
         case FETCH_CASH_OPENING_INFO:
             return { ...state, cashOpeningData: action.payload }
         case ADD_CASH_OPENING_INFO:
-            return { ...state, cashClosingData: action.payload }
+            return { ...state, addcashClosingPayload: action.payload }
         default:
             return state
     }
