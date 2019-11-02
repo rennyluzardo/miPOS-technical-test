@@ -24,7 +24,7 @@ class Index extends Component {
             if (nextProps.message.type === 'error') {
                 message.error(nextProps.message.txt, nextProps.message.duration)
             }
-            if(nextProps.message.type === 'warning') {
+            if (nextProps.message.type === 'warning') {
                 message.warning(nextProps.message.txt, nextProps.message.duration)
             }
         }
