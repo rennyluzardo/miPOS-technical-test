@@ -1,0 +1,23 @@
+.expenses-container {
+  &__row {
+    display: flex;
+
+    &--btn-close {
+      display: flex;
+      align-items: center;
+
+      button {
+        min-width: 20px;
+        height: 20px;
+
+        .anticon-close {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+}
