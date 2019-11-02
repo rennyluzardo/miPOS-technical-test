@@ -225,7 +225,7 @@ class ClosingForm extends Component {
                                     </div>
                                     <div className="expenses-container__row--btn-close">
                                         <Button type="danger" shape="circle">
-                                            <Icon type="close" />
+                                            <Icon type="minus" />
                                         </Button>
                                     </div>
                                 </div>

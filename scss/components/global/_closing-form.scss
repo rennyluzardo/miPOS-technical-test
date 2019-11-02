@@ -1,6 +1,7 @@
 .expenses-container {
   &__row {
     display: flex;
+    justify-content: space-evenly;
 
     &--btn-close {
       display: flex;
