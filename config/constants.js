@@ -1,7 +1,4 @@
-import getConfig from 'next/config'
-
-const { publicRuntimeConfig } = getConfig()
-const env = publicRuntimeConfig.env || 'development'
+const env = 'development'
 
 const environments = {
     development: {
