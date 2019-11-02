@@ -5,6 +5,7 @@
     grid-auto-flow: column;
 
     &__titles-box {
+      padding: 0 150px;
       background-color: navy;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -29,7 +30,7 @@
     }
 
     &__content-box {
-      padding: 15px;
+      padding: 0 150px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       grid-gap: 20px;
