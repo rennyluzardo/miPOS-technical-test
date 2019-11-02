@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button } from 'antd'
+import { Button, Icon } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
 import { centsToDollar, dollarsToCents } from '../../lib/utils'
@@ -31,7 +31,7 @@ class ClosingForm extends Component {
         },
         expensesForm: {
             name: '',
-            value: null
+            value: 0
         },
         errors: [],
         closingLoading: false
@@ -105,6 +105,20 @@ class ClosingForm extends Component {
                 this.props.fetchCashOpeningInfo()
             })
         }
+    }
+
+    addExpense = () => {
+        this.setState(state => {
+            const expenses = state.closingForm.expenses.push(state.expensesForm)
+
+            return {
+                expenses
+            }
+        })
+    }
+
+    removeExpense = () => {
+
     }
 
     render() {
@@ -193,14 +207,39 @@ class ClosingForm extends Component {
                     <InputNumber {...valueCloseInputProps} />
                 </GroupedInputs>
                 <div className="action-container">
-                    <Button className="action-container--btn" type="primary">Agregar gasto</Button>
+                    <Button
+                        className="action-container--btn"
+                        type="primary"
+                        onClick={this.addExpense}>Agregar gasto</Button>
+                </div>
+                <div className="expenses-container">
+                    {
+                        this.state.closingForm.expenses.map((expense, i) => {
+                            return (
+                                <div key={i} className="expenses-container__row">
+                                    <div>
+                                        <Input placeholder="Motivo" />
+                                    </div>
+                                    <div>
+                                        <InputNumber placeholder="Valor"/>
+                                    </div>
+                                    <div className="expenses-container__row--btn-close">
+                                        <Button type="danger" shape="circle">
+                                            <Icon type="close" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )
+                        })
+                    }
+
                 </div>
                 <div className="action-container">
                     <Button
                         className="action-container--btn"
                         type="primary"
                         loading={this.state.closingLoading}
-                        onClick={this.handleClosingFormSubmit}>Cerrar caja con $1.00</Button>
+                        onClick={this.handleClosingFormSubmit}>Cerrar caja con ${this.state.closingForm.value_cash}</Button>
                 </div>
             </div>
         )
