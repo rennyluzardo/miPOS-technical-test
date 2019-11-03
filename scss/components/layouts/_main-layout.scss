@@ -30,7 +30,7 @@
     }
 
     &__content-box {
-      padding: 0 150px;
+      padding: 40px 150px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       grid-gap: 20px;
@@ -41,11 +41,13 @@
 
       &--grouped-inputs {
         display: flex;
+        margin-top: 1em;
         justify-content: space-evenly;
       }
 
       &--grouped-inputs-1 {
         display: flex;
+        margin-top: 1em;
         justify-content: center;
       }
     }
