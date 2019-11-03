@@ -58,7 +58,7 @@ class Index extends Component {
                                 addCashClosing={this.props.addCashClosing}
                                 fetchCashOpeningInfo={() => this.props.fetchCashOpeningInfo()}
                                 setMessage={this.props.setMessage} />
-                            : 'No se puede mostrar esta informacion.'
+                            : 'No existe información para mostrar.'
                     }
                 </div>
             </MainLayout>
