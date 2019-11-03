@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Button } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
+import { centsToDollar } from '../../lib/utils'
 // Components
 import Input from './Input'
 import GroupedInputs from './GroupedInputs'
@@ -41,7 +42,11 @@ class OpeningForm extends Component {
             const openingForm = this.state.openingForm
             openingForm['date_open'] = res.results.date_open
             openingForm['hour_open'] = moment(res.results.hour_open, 'HH:mm:ss').format("hh:mm")
-            openingForm['value_previous_close'] = res.results.value_previous_close
+            /** 
+             * Si es que hay un cierre de caja activo la propiedad value_previous_close llega en dolares,
+             * caso contrario con centavos. Consultar esto ya que no esta especificado en el test.
+            **/
+            openingForm['value_previous_close'] = this._checkCashClosing(res.results)
             openingForm['value_open'] = res.results.value_open
             openingForm['observation'] = res.results.observation
 
@@ -54,11 +59,18 @@ class OpeningForm extends Component {
             const openingForm = this.state.openingForm
             openingForm['date_open'] = nextProps.cashOpeningInfo.results.date_open
             openingForm['hour_open'] = moment(nextProps.cashOpeningInfo.results.hour_open, 'HH:mm:ss').format("hh:mm")
-            openingForm['value_previous_close'] = nextProps.cashOpeningInfo.results.value_previous_close
+            openingForm['value_previous_close'] = this._checkCashClosing(nextProps.cashOpeningInfo.results)
             openingForm['value_open'] = nextProps.cashOpeningInfo.results.value_open
             openingForm['observation'] = nextProps.cashOpeningInfo.results.observation
             this.setState({ openingForm })
         }
+    }
+
+    _checkCashClosing = cash => {
+        if (cash.value_open !== null) {
+            return cash.value_previous_close
+        }
+        return centsToDollar(cash.value_previous_close)
     }
 
     validateOpeningForm = () => {
@@ -82,9 +94,9 @@ class OpeningForm extends Component {
 
     handleOpeningFormSubmit = () => {
         this.props.setMessage(this.state.initialMessage)
-        const successMessage = {
+        const message = {
             duration: 3,
-            txt: "Caja aperturada!",
+            txt: "",
             type: 'success'
         }
 
@@ -97,7 +109,8 @@ class OpeningForm extends Component {
                 this.setState({ loading: false })
 
                 if (res.results.value_open !== null) {
-                    this.props.setMessage(successMessage)
+                    message.txt = res.msg
+                    this.props.setMessage(message)
 
                     openingForm['date_open'] = res.results.date_open
                     openingForm['hour_open'] = moment(res.results.hour_open, 'HH:mm:ss').format("hh:mm")
