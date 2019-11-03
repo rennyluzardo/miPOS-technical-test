@@ -72,7 +72,6 @@ class ClosingForm extends Component {
         })
     }
 
-
     validateClosingForm = () => {
         const errors = validateForm(this.state.closingForm, this.closingFormRules)
         this.setState({ errors })
@@ -109,9 +108,8 @@ class ClosingForm extends Component {
             form.value_card = dollarsToCents(form.value_card)
             form.value_cash = dollarsToCents(form.value_cash)
             form.value_sales = dollarsToCents(form.value_sales)
-
+            // TODO: transformar expenses a centavos
             this.props.addCashClosing(form).then(res => {
-
                     this.setState({ closingLoading: false })
                     message.txt = res.msg
                     this.props.setMessage(message)
@@ -127,14 +125,8 @@ class ClosingForm extends Component {
     }
 
     handleOnRemoveExpense = i => {
-        this.setState(state => {
-            const expensesDynamicForm = state.expensesDynamicForm
-            delete expensesDynamicForm[i]
-
-            return {
-                expensesDynamicForm
-            }
-        })
+        const expensesDynamicForm = this.state.expensesDynamicForm.filter((e, eidx) => i !== eidx)
+        this.setState({ expensesDynamicForm })
     }
 
     handleOnChangeInputExpense = (i, key) => event => {
@@ -264,7 +256,7 @@ class ClosingForm extends Component {
                 </GroupedInputs>
                 <div className="action-container">
                     <Button
-                        className="action-container--btn"
+                        className="action-container--btn-expense"
                         type="primary"
                         onClick={this.addExpense}>Agregar gasto</Button>
                 </div>
