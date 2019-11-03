@@ -2,11 +2,13 @@ import React, { Component } from 'react'
 import { Button, Icon } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
-import { centsToDollar, dollarsToCents } from '../../lib/utils'
+import { dollarsToCents } from '../../lib/utils'
 // Components
 import Input from './Input'
 import GroupedInputs from './GroupedInputs'
 import InputNumber from './InputNumber'
+import DynamicInputText from './DynamicInputText'
+import DynamicInputNumber from './DynamicInputNumber'
 
 class ClosingForm extends Component {
     state = {
@@ -24,15 +26,15 @@ class ClosingForm extends Component {
             expenses: [],
             value_open: null, // res.value
             value_cash: null, // res.close + res.value
-            totalClosing: null, // res.close + res.value - (todos los valores de los gastos)
         },
         openingForm: {
 
         },
-        expensesForm: {
+        expensesForm: [{
             name: '',
-            value: 0
-        },
+            value: '0'
+        }],
+        expensesDynamicForm: [],
         errors: [],
         closingLoading: false
     }
@@ -47,16 +49,24 @@ class ClosingForm extends Component {
         ]
     }
 
+    dynamicExpensesRules = {
+        required: [
+            'name',
+            'value'
+        ]
+    }
+
     componentDidMount() {
         const closingForm = this.state.closingForm
 
         this.props.fetchCashClosingInfo().then(res => {
             if (res.msg === 'Success') {
-                closingForm['value_close'] = centsToDollar(res.close) + centsToDollar(res.value)
-                closingForm['value_card'] = centsToDollar(res.card)
-                closingForm['value_sales'] = centsToDollar(res.close) + centsToDollar(res.card)
-                closingForm['value_open'] = centsToDollar(res.value)
-                closingForm['value_cash'] = centsToDollar(res.close)
+                closingForm['value_close'] = parseInt(res.close) + parseInt(res.value)
+                closingForm['value_card'] = parseInt(res.card)
+                closingForm['value_sales'] = parseInt(res.close) + parseInt(res.card)
+                closingForm['value_open'] = parseInt(res.value)
+                closingForm['value_cash'] = parseInt(res.close)
+
                 this.setState({ closingForm })
             }
         })
@@ -75,50 +85,91 @@ class ClosingForm extends Component {
         this.setState({ closingForm })
     }
 
-    handleChangeInput = (input, event) => {
-        const openingForm = this.state.openingForm
-        openingForm[input] = input !== 'value_open' ? event.target.value : event
-        this.setState({ openingForm })
+    handleOnChangeInput = (input, event) => {
+        const closingForm = this.state.closingForm
+        closingForm[input] = input !== 'value_open' ? event.target.value : event
+        this.setState({ closingForm })
     }
 
 
     handleClosingFormSubmit = () => {
         this.props.setMessage(this.state.initialMessage)
-        const successMessage = {
+        const message = {
             duration: 3,
-            txt: "Caja cerrada!",
+            txt: "",
             type: 'success'
         }
 
         if (this.validateClosingForm()) {
             this.setState({ closingLoading: true })
-            const form = this.state.closingForm
-            form['value_close'] = dollarsToCents(form['value_close'])
-            form['value_card'] = dollarsToCents(form['value_card'])
-            form['value_sales'] = dollarsToCents(form['value_sales'])
-            form['value_open'] = dollarsToCents(form['value_open'])
-            form['value_cash'] = dollarsToCents(form['value_cash'])
+            const form = Object.assign({}, this.state.closingForm)
+            form.expenses = this.state.expensesDynamicForm
+            form.value_close = dollarsToCents(form.value_close)
+            form.value_open = dollarsToCents(form.value_open)
+            form.value_card = dollarsToCents(form.value_card)
+            form.value_cash = dollarsToCents(form.value_cash)
+            form.value_sales = dollarsToCents(form.value_sales)
 
             this.props.addCashClosing(form).then(res => {
-                this.setState({ closingLoading: false })
-                this.props.setMessage(successMessage)
-                this.props.fetchCashOpeningInfo()
+
+                    this.setState({ closingLoading: false })
+                    message.txt = res.msg
+                    this.props.setMessage(message)
+                    this.props.fetchCashOpeningInfo() 
             })
         }
     }
 
     addExpense = () => {
+        this.setState({
+            expensesDynamicForm: this.state.expensesDynamicForm.concat(this.state.expensesForm)
+        })
+    }
+
+    handleOnRemoveExpense = i => {
         this.setState(state => {
-            const expenses = state.closingForm.expenses.push(state.expensesForm)
+            const expensesDynamicForm = state.expensesDynamicForm
+            delete expensesDynamicForm[i]
 
             return {
-                expenses
+                expensesDynamicForm
             }
         })
     }
 
-    removeExpense = () => {
+    handleOnChangeInputExpense = (i, key) => event => {
+        const newExpense = this.state.expensesDynamicForm.map((expense, eidx) => {
+            if (i !== eidx) {
+                return expense
+            }
+            return { ...expense, [key]: event.target.value }
+        })
 
+        this.setState({
+            expensesDynamicForm: newExpense
+        })
+    }
+
+    _handleOnChangeDynamicNumber = (value, i, key) => {
+        const newExpense = this.state.expensesDynamicForm.map((expense, eidx) => {
+            if (i !== eidx) {
+                return expense
+            }
+            return { ...expense, [key]: value }
+        })
+
+        this.setState({
+            expensesDynamicForm: newExpense
+        })
+    }
+
+    _totalSumExpenses = () => {
+        let sum = 0
+        this.state.expensesDynamicForm.map(expense => {
+            return sum += ((expense.value && expense.value.length === 0) ||
+                expense.value === null ? 0 : parseInt(expense.value))
+        })
+        return sum
     }
 
     render() {
@@ -134,7 +185,7 @@ class ClosingForm extends Component {
         const currentHourInputProps = {
             label: "Hora",
             placeholder: "hh:mm",
-            onChangeInput: value => this.handleChangeInput('hour_close', value),
+            onChangeInput: value => this.handleOnChangeInput('hour_close', value),
             value: this.state.closingForm.hour_close,
             error: this.state.errors.hour_close,
             disabled: !!this.state.closingForm.hour_close
@@ -142,7 +193,7 @@ class ClosingForm extends Component {
 
         const valueCashInputProps = {
             label: "Ventas en efectivo",
-            onChange: value => this.handleChangeInput('value_cash', value),
+            onChange: value => this.handleOnChangeInput('value_cash', value),
             value: this.state.closingForm.value_cash,
             error: this.state.errors.value_cash,
             disabled: true,
@@ -152,7 +203,7 @@ class ClosingForm extends Component {
 
         const valueCardInputProps = {
             label: "Ventas por tarjeta",
-            onChange: value => this.handleChangeInput('value_card', value),
+            onChange: value => this.handleOnChangeInput('value_card', value),
             value: this.state.closingForm.value_card,
             error: this.state.errors.value_card,
             disabled: true,
@@ -161,7 +212,7 @@ class ClosingForm extends Component {
         }
         const valueSalesInputProps = {
             label: "Total en ventas",
-            onChange: value => this.handleChangeInput('value_sales', value),
+            onChange: value => this.handleOnChangeInput('value_sales', value),
             value: this.state.closingForm.value_sales,
             error: this.state.errors.value_sales,
             disabled: true,
@@ -171,7 +222,7 @@ class ClosingForm extends Component {
 
         const valueOpeningInputProps = {
             label: "Total apertura",
-            onChange: value => this.handleChangeInput('value_open', value),
+            onChange: value => this.handleOnChangeInput('value_open', value),
             value: this.state.closingForm.value_open,
             error: this.state.errors.value_open,
             disabled: true,
@@ -181,12 +232,17 @@ class ClosingForm extends Component {
 
         const valueCloseInputProps = {
             label: "Total de caja",
-            onChange: value => this.handleChangeInput('value_close', value),
+            onChange: value => this.handleOnChangeInput('value_close', value),
             value: this.state.closingForm.value_close,
             error: this.state.errors.value_close,
             disabled: true,
             formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
+        }
+
+        const removeExpenseBtnProps = {
+            type: "danger",
+            shape: "circle"
         }
 
         return (
@@ -214,17 +270,31 @@ class ClosingForm extends Component {
                 </div>
                 <div className="expenses-container">
                     {
-                        this.state.closingForm.expenses.map((expense, i) => {
+                        this.state.expensesDynamicForm.map((expense, i) => {
                             return (
                                 <div key={i} className="expenses-container__row">
                                     <div>
-                                        <Input placeholder="Motivo" />
+                                        <DynamicInputText
+                                            placeholder="Motivo"
+                                            value={expense.name}
+                                            onChange={this.handleOnChangeInputExpense(i, 'name')} />
                                     </div>
                                     <div>
-                                        <InputNumber placeholder="Valor"/>
+                                        {/* <DynamicInputText
+                                            placeholder="Valor"
+                                            value={expense.value}
+                                            onChange={this.handleOnChangeInputExpense(i, 'value')}
+                                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            parser={value => value.replace(/\$\s?|(,*)/g, '')} /> */}
+                                        <DynamicInputNumber
+                                            placeholder="Valor"
+                                            value={expense.value}
+                                            onChange={event => this._handleOnChangeDynamicNumber(event, i, 'value')}
+                                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                            parser={value => value.replace(/\$\s?|(,*)/g, '')} />
                                     </div>
                                     <div className="expenses-container__row--btn-close">
-                                        <Button type="danger" shape="circle">
+                                        <Button {...removeExpenseBtnProps} onClick={() => this.handleOnRemoveExpense(i)}>
                                             <Icon type="minus" />
                                         </Button>
                                     </div>
@@ -239,7 +309,10 @@ class ClosingForm extends Component {
                         className="action-container--btn"
                         type="primary"
                         loading={this.state.closingLoading}
-                        onClick={this.handleClosingFormSubmit}>Cerrar caja con ${this.state.closingForm.value_cash}</Button>
+                        onClick={this.handleClosingFormSubmit}
+                        disabled={(this.state.closingForm.value_close - this._totalSumExpenses()) < 0}>
+                        Cerrar caja con $ {this.state.closingForm.value_close - this._totalSumExpenses()}
+                    </Button>
                 </div>
             </div>
         )
