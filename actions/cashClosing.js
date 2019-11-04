@@ -19,6 +19,8 @@ export const fetchCashClosingInfo = () => dispatch => {
 }
 
 export const addCashClosing = form => dispatch => {
+    let code = null
+
     return fetch(`${CONSTANTS.API}cashier/balance/close/day`, {
         method: 'POST',
         headers: {
@@ -27,9 +29,17 @@ export const addCashClosing = form => dispatch => {
         },
         body: JSON.stringify(form)
     })
-        .then(res => res.json())
         .then(res => {
-            dispatch({ type: ADD_CASH_CLOSING_INFO, payload: res })
+            code = res.status
+            return res.json()
+        })
+        .then(res => {
+            res.code = code
+
+            if(code === 200) {
+                dispatch({ type: ADD_CASH_CLOSING_INFO, payload: res })
+            }
+
             return res
         })
         .catch(err => console.log(err))
