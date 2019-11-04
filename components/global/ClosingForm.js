@@ -3,6 +3,7 @@ import { Button, Icon } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
 import { dollarsToCents } from '../../lib/utils'
+import _ from 'lodash'
 // Components
 import Input from './Input'
 import GroupedInputs from './GroupedInputs'
@@ -96,24 +97,31 @@ class ClosingForm extends Component {
         const message = {
             duration: 3,
             txt: "",
-            type: 'success'
+            type: "success"
         }
 
         if (this.validateClosingForm()) {
             this.setState({ closingLoading: true })
+
             const form = Object.assign({}, this.state.closingForm)
-            form.expenses = this.state.expensesDynamicForm
             form.value_close = dollarsToCents(form.value_close)
             form.value_open = dollarsToCents(form.value_open)
             form.value_card = dollarsToCents(form.value_card)
             form.value_cash = dollarsToCents(form.value_cash)
             form.value_sales = dollarsToCents(form.value_sales)
-            // TODO: transformar expenses a centavos
+            form.expenses = this._expensesTransform()
+
             this.props.addCashClosing(form).then(res => {
-                    this.setState({ closingLoading: false })
-                    message.txt = res.msg
-                    this.props.setMessage(message)
-                    this.props.fetchCashOpeningInfo() 
+                this.setState({ closingLoading: false })
+
+                if (res.code === 200) {
+                    this.props.fetchCashOpeningInfo()
+                } else {
+                    message.type = 'warning'
+                }
+
+                message.txt = res.msg
+                this.props.setMessage(message)
             })
         }
     }
@@ -147,7 +155,7 @@ class ClosingForm extends Component {
             if (i !== eidx) {
                 return expense
             }
-            return { ...expense, [key]: value }
+            return { ...expense, [key]: value === null ? 0 : value }
         })
 
         this.setState({
@@ -157,11 +165,25 @@ class ClosingForm extends Component {
 
     _totalSumExpenses = () => {
         let sum = 0
-        this.state.expensesDynamicForm.map(expense => {
-            return sum += ((expense.value && expense.value.length === 0) ||
-                expense.value === null ? 0 : parseInt(expense.value))
+
+        return this.state.expensesDynamicForm.map(expense => {
+            if (expense.value === null) {
+                return 0
+            } else {
+                return sum += (expense.value.length === 0 ? 0 : parseInt(expense.value))
+            }
         })
-        return sum
+    }
+
+    _expensesTransform = () => {
+        const expensesDynamicForm = _.cloneDeep(this.state.expensesDynamicForm)
+
+        return expensesDynamicForm.map((expense, i) => {
+            if (expense.value !== null) {
+                expense.value = dollarsToCents(expense.value)
+            }
+            return expense
+        })
     }
 
     render() {
@@ -272,12 +294,6 @@ class ClosingForm extends Component {
                                             onChange={this.handleOnChangeInputExpense(i, 'name')} />
                                     </div>
                                     <div>
-                                        {/* <DynamicInputText
-                                            placeholder="Valor"
-                                            value={expense.value}
-                                            onChange={this.handleOnChangeInputExpense(i, 'value')}
-                                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            parser={value => value.replace(/\$\s?|(,*)/g, '')} /> */}
                                         <DynamicInputNumber
                                             placeholder="Valor"
                                             value={expense.value}
