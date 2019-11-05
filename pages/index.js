@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Divider, message } from 'antd'
+import { Divider, message, Icon } from 'antd'
 // Actions
 import { fetchCashOpeningInfo, addCashOpening } from '../actions/cashOpening'
 import { fetchCashClosingInfo, addCashClosing } from '../actions/cashClosing'
@@ -58,7 +58,10 @@ class Index extends Component {
                                 addCashClosing={this.props.addCashClosing}
                                 fetchCashOpeningInfo={() => this.props.fetchCashOpeningInfo()}
                                 setMessage={this.props.setMessage} />
-                            : 'No existe información para mostrar.'
+                            : <div className="no-information">
+                                <Icon type="exclamation-circle" />
+                                <p>No existe información para mostrar.</p>
+                            </div>
                     }
                 </div>
             </MainLayout>
