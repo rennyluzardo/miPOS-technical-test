@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { Button } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
-import { centsToDollar } from '../../lib/utils'
+import { centsToDollar, dollarsToCents } from '../../lib/utils'
+import _ from 'lodash'
 // Components
 import Input from './Input'
 import GroupedInputs from './GroupedInputs'
@@ -42,12 +43,8 @@ class OpeningForm extends Component {
             const openingForm = this.state.openingForm
             openingForm['date_open'] = res.results.date_open
             openingForm['hour_open'] = moment(res.results.hour_open, 'HH:mm:ss').format("hh:mm")
-            /** 
-             * Si es que hay un cierre de caja activo la propiedad value_previous_close llega en dolares,
-             * caso contrario con centavos. Consultar esto ya que no esta especificado en el test.
-            **/
-            openingForm['value_previous_close'] = this._checkCashClosing(res.results)
-            openingForm['value_open'] = res.results.value_open
+            openingForm['value_previous_close'] = centsToDollar(res.results.value_previous_close)
+            openingForm['value_open'] = res.results.value_open !== null ? centsToDollar(res.results.value_open) : 0.00
             openingForm['observation'] = res.results.observation
 
             this.setState({ openingForm })
@@ -57,20 +54,18 @@ class OpeningForm extends Component {
     componentWillReceiveProps(nextProps) {
         if (this.props.cashOpeningInfo !== nextProps.cashOpeningInfo) {
             const openingForm = this.state.openingForm
+
+            if (nextProps.cashOpeningInfo.results.value_previous_close !== null) {
+
+            }
+            const initialCents = 0
             openingForm['date_open'] = nextProps.cashOpeningInfo.results.date_open
             openingForm['hour_open'] = moment(nextProps.cashOpeningInfo.results.hour_open, 'HH:mm:ss').format("hh:mm")
-            openingForm['value_previous_close'] = this._checkCashClosing(nextProps.cashOpeningInfo.results)
-            openingForm['value_open'] = nextProps.cashOpeningInfo.results.value_open
+            openingForm['value_previous_close'] = centsToDollar(parseInt(nextProps.cashOpeningInfo.results.value_previous_close))
+            openingForm['value_open'] = nextProps.cashOpeningInfo.results.value_open !== null ? centsToDollar(parseInt(nextProps.cashOpeningInfo.results.value_open)) : initialCents.toFixed(2)
             openingForm['observation'] = nextProps.cashOpeningInfo.results.observation
             this.setState({ openingForm })
         }
-    }
-
-    _checkCashClosing = cash => {
-        if (cash.value_open !== null) {
-            return cash.value_previous_close
-        }
-        return centsToDollar(cash.value_previous_close)
     }
 
     validateOpeningForm = () => {
@@ -93,15 +88,15 @@ class OpeningForm extends Component {
     }
 
     handleOpeningFormSubmit = () => {
-        this.props.setMessage(this.state.initialMessage)
         const message = {
             duration: 3,
             txt: "",
             type: 'success'
         }
+        const openingForm = _.cloneDeep(this.state.openingForm)
 
-        if (this.validateOpeningForm()) {
-            const openingForm = this.state.openingForm
+        if (this.validateOpeningForm() && openingForm.value_open > 0) {
+            openingForm.value_open = dollarsToCents(openingForm.value_open)
 
             this.setState({ loading: true })
 
@@ -110,12 +105,13 @@ class OpeningForm extends Component {
 
                 if (res.results.value_open !== null) {
                     message.txt = res.msg
+
                     this.props.setMessage(message)
 
                     openingForm['date_open'] = res.results.date_open
                     openingForm['hour_open'] = moment(res.results.hour_open, 'HH:mm:ss').format("hh:mm")
                     openingForm['value_previous_close'] = res.results.value_previous_close
-                    openingForm['value_open'] = res.results.value_open
+                    openingForm['value_open'] = centsToDollar(res.results.value_open)
                     openingForm['observation'] = res.results.observation
 
                     this.setState({ openingForm })
@@ -150,7 +146,7 @@ class OpeningForm extends Component {
             value: this.state.openingForm.value_previous_close,
             error: this.state.errors.value_previous_close,
             disabled: !!this.state.openingForm.value_previous_close || typeof this.state.openingForm.value_previous_close === 'number',
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -163,7 +159,8 @@ class OpeningForm extends Component {
                 this.props.cashOpeningInfo.results &&
                 this.props.cashOpeningInfo.results.value_open &&
                 this.props.cashOpeningInfo.results.value_open !== null,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            step: this.state.openingForm.value_open <= 0 ? 0.01 : 0,
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -171,7 +168,8 @@ class OpeningForm extends Component {
             className: "action-container--btn",
             type: "primary",
             loading: this.state.loading,
-            onClick: this.handleOpeningFormSubmit
+            onClick: this.handleOpeningFormSubmit,
+            disabled: this.state.openingForm.value_open <= 0
         }
 
         const observationProps = {
