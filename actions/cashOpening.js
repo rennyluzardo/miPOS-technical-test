@@ -19,6 +19,8 @@ export const fetchCashOpeningInfo = () => dispatch => {
 }
 
 export const addCashOpening = data => dispatch => {
+    let code = null
+
     return fetch(`${CONSTANTS.API}cashier/balance/open/day`, {
         method: 'POST',
         headers: {
@@ -27,9 +29,17 @@ export const addCashOpening = data => dispatch => {
         },
         body: JSON.stringify(data)
     })
-        .then(res => res.json())
         .then(res => {
-            dispatch({ type: FETCH_CASH_OPENING_INFO, payload: res })
+            code = res.status
+            return res.json()
+        })
+        .then(res => {
+            res.code = code
+
+            if(code === 200) {
+                dispatch({ type: FETCH_CASH_OPENING_INFO, payload: res })
+            }
+
             return res
         })
         .catch(err => console.log(err))
