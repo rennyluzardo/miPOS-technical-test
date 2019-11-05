@@ -12,7 +12,9 @@ const InputNumber = props => (
             onChange={props.onChangeInput}
             disabled={props.disabled}
             formatter={props.formatter}
-            parser={props.parser} />
+            parser={props.parser}
+            step={props.step}
+            defaultValue={props.defaultValue} />
         {!!props.error && <p className="error-text">{props.error}</p>}
     </div>
 )
