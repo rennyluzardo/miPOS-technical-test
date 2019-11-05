@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Button, Icon } from 'antd'
 import moment from 'moment'
 import { validateForm } from '../../lib/formValidator'
-import { dollarsToCents } from '../../lib/utils'
+import { dollarsToCents, centsToDollar } from '../../lib/utils'
 import _ from 'lodash'
 // Components
 import Input from './Input'
@@ -62,11 +62,11 @@ class ClosingForm extends Component {
 
         this.props.fetchCashClosingInfo().then(res => {
             if (res.msg === 'Success') {
-                closingForm['value_close'] = parseInt(res.close) + parseInt(res.value)
-                closingForm['value_card'] = parseInt(res.card)
-                closingForm['value_sales'] = parseInt(res.close) + parseInt(res.card)
-                closingForm['value_open'] = parseInt(res.value)
-                closingForm['value_cash'] = parseInt(res.close)
+                closingForm['value_close'] = centsToDollar(parseInt(res.close) + parseInt(res.value))
+                closingForm['value_card'] = centsToDollar(parseInt(res.card))
+                closingForm['value_sales'] = centsToDollar(parseInt(res.close) + parseInt(res.card))
+                closingForm['value_open'] = centsToDollar(parseInt(res.value))
+                closingForm['value_cash'] = centsToDollar(parseInt(res.close))
 
                 this.setState({ closingForm })
             }
@@ -166,13 +166,15 @@ class ClosingForm extends Component {
     _totalSumExpenses = () => {
         let sum = 0
 
-        return this.state.expensesDynamicForm.map(expense => {
+        this.state.expensesDynamicForm.map(expense => {
             if (expense.value === null) {
-                return 0
+                sum += 0
             } else {
-                return sum += (expense.value.length === 0 ? 0 : parseInt(expense.value))
+                sum += (expense.value.length === 0 ? 0 : parseInt(expense.value))
             }
         })
+
+        return this.state.closingForm.value_close - sum
     }
 
     _expensesTransform = () => {
@@ -318,8 +320,8 @@ class ClosingForm extends Component {
                         type="primary"
                         loading={this.state.closingLoading}
                         onClick={this.handleClosingFormSubmit}
-                        disabled={(this.state.closingForm.value_close - this._totalSumExpenses()) < 0}>
-                        Cerrar caja con $ {this.state.closingForm.value_close - this._totalSumExpenses()}
+                        disabled={this._totalSumExpenses() < 0}>
+                        Cerrar caja con $ {this._totalSumExpenses()}
                     </Button>
                 </div>
             </div>
