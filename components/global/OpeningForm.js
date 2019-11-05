@@ -146,7 +146,7 @@ class OpeningForm extends Component {
             value: this.state.openingForm.value_previous_close,
             error: this.state.errors.value_previous_close,
             disabled: !!this.state.openingForm.value_previous_close || typeof this.state.openingForm.value_previous_close === 'number',
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -160,7 +160,7 @@ class OpeningForm extends Component {
                 this.props.cashOpeningInfo.results.value_open &&
                 this.props.cashOpeningInfo.results.value_open !== null,
             step: this.state.openingForm.value_open <= 0 ? 0.01 : 0,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
