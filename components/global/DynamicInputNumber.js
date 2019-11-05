@@ -2,26 +2,25 @@ import React from 'react'
 import { InputNumber as Input } from 'antd'
 import PropTypes from 'prop-types'
 
-const InputNumber = props => (
+const DynamicInputNumber = props => (
     <div className="input-container">
         <h5>{props.label}</h5>
         <Input
             className="input-number"
             placeholder={props.placeholder}
             value={props.value}
-            onChange={props.onChangeInput}
+            onChange={props.onChange}
             disabled={props.disabled}
             formatter={props.formatter}
             parser={props.parser}
-            step={props.step}
-            defaultValue={props.defaultValue} />
+            defaultValue={0} />
         {!!props.error && <p className="error-text">{props.error}</p>}
     </div>
 )
 
-InputNumber.propTypes = {
+DynamicInputNumber.propTypes = {
     label: PropTypes.string,
     placeholder: PropTypes.string
 }
 
-export default InputNumber
+export default DynamicInputNumber
