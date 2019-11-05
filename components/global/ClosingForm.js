@@ -213,7 +213,7 @@ class ClosingForm extends Component {
             value: this.state.closingForm.value_cash,
             error: this.state.errors.value_cash,
             disabled: true,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -223,7 +223,7 @@ class ClosingForm extends Component {
             value: this.state.closingForm.value_card,
             error: this.state.errors.value_card,
             disabled: true,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
         const valueSalesInputProps = {
@@ -232,7 +232,7 @@ class ClosingForm extends Component {
             value: this.state.closingForm.value_sales,
             error: this.state.errors.value_sales,
             disabled: true,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -242,7 +242,7 @@ class ClosingForm extends Component {
             value: this.state.closingForm.value_open,
             error: this.state.errors.value_open,
             disabled: true,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -252,7 +252,7 @@ class ClosingForm extends Component {
             value: this.state.closingForm.value_close,
             error: this.state.errors.value_close,
             disabled: true,
-            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            formatter: value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             parser: value => value.replace(/\$\s?|(,*)/g, '')
         }
 
@@ -300,7 +300,7 @@ class ClosingForm extends Component {
                                             placeholder="Valor"
                                             value={expense.value}
                                             onChange={event => this._handleOnChangeDynamicNumber(event, i, 'value')}
-                                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+                                            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                             parser={value => value.replace(/\$\s?|(,*)/g, '')} />
                                     </div>
                                     <div className="expenses-container__row--btn-close">
@@ -320,7 +320,7 @@ class ClosingForm extends Component {
                         type="primary"
                         loading={this.state.closingLoading}
                         onClick={this.handleClosingFormSubmit}
-                        disabled={this._totalSumExpenses() < 0} >Cerrar caja con {this._totalSumExpenses().toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')}
+                        disabled={this._totalSumExpenses() < 0} >Cerrar caja con {this._totalSumExpenses().toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
                     </Button>
                 </div>
             </div>
